@@ -13,12 +13,12 @@ using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace api
+namespace TodoBackend
 {
-	public static class TodoItems
-	{
-		private const string PartitionKey = "partition";
-		private const string TableName = "ToDoTable";
+    public static class TodoItems
+    {
+        private const string PartitionKey = "partition";
+        private const string TableName = "ToDoTable";
 
         //private static AuthorizedUser GetCurrentUserName(TraceWriter log)
         //{
@@ -46,17 +46,17 @@ namespace api
         [FunctionName("TodoItemAdd")]
         [return: Table(TableName, Connection = "AzureStorage")] // This syntax comes from the docs, alternatively you can add a Table input binding and use todoTable.UpsertAsync
         public static async Task<TodoItem> AddItem(
-			[HttpTrigger(
-				AuthorizationLevel.Anonymous, 
-				"post",
-				Route = "todoitem")]
-			HttpRequestMessage req,
-			ILogger log)
-		{
-			// TODO ERROR HANDLING
+            [HttpTrigger(
+                AuthorizationLevel.Anonymous,
+                "post",
+                Route = "todoitem")]
+            HttpRequestMessage req,
+            ILogger log)
+        {
+            // TODO ERROR HANDLING
 
-			try
-			{
+            try
+            {
                 var json = await req.Content.ReadAsStringAsync();
                 var newItem = JsonConvert.DeserializeObject<TodoItem>(json); // Getting the content from the request
 
@@ -73,52 +73,52 @@ namespace api
             }
         }
 
-		// Get all items
-		[FunctionName("TodoItemGetAll")]
-		public static async Task<IActionResult> GetAll(
-			[HttpTrigger(
-				AuthorizationLevel.Anonymous, 
-				"get", 
-				Route = "todoitem")]
-			HttpRequestMessage req,
-			[Table(TableName, PartitionKey, Connection = "AzureStorage")]
-			TableClient todoTable, 
-			ILogger log)
-		{
-			var list = todoTable.QueryAsync<TodoItem>();
+        // Get all items
+        [FunctionName("TodoItemGetAll")]
+        public static async Task<IActionResult> GetAll(
+            [HttpTrigger(
+                AuthorizationLevel.Anonymous,
+                "get",
+                Route = "todoitem")]
+            HttpRequestMessage req,
+            [Table(TableName, PartitionKey, Connection = "AzureStorage")]
+            TableClient todoTable,
+            ILogger log)
+        {
+            var list = todoTable.QueryAsync<TodoItem>();
 
-			var result = new List<TodoItem>();
+            var result = new List<TodoItem>();
 
-			await foreach (var item in list) // The loop is executing the paged query
-			{
-				result.Add(item);
-			}
-
-			return new OkObjectResult(result);
-		}
-
-		// Delete item by id
-		[FunctionName("TodoItemDelete")]
-		public static async Task<IActionResult> DeleteItem(
-		   [HttpTrigger(
-			AuthorizationLevel.Anonymous,
-			"delete",
-			Route = "todoitem/{id}")]
-		   HttpRequestMessage req,
-		   [Table(TableName, Connection = "AzureStorage")]
-		   TableClient todoTable, 
-		   string id,
-		   ILogger log)
-		{
-			try
-			{
-                await todoTable.DeleteEntityAsync(PartitionKey, id);
-				return new OkObjectResult(HttpStatusCode.NoContent);
+            await foreach (var item in list) // The loop is executing the paged query
+            {
+                result.Add(item);
             }
-			catch (Exception ex)
-			{
-				return new UnprocessableEntityObjectResult(ex.Message);
-			}
+
+            return new OkObjectResult(result);
+        }
+
+        // Delete item by id
+        [FunctionName("TodoItemDelete")]
+        public static async Task<IActionResult> DeleteItem(
+           [HttpTrigger(
+            AuthorizationLevel.Anonymous,
+            "delete",
+            Route = "todoitem/{id}")]
+           HttpRequestMessage req,
+           [Table(TableName, Connection = "AzureStorage")]
+           TableClient todoTable,
+           string id,
+           ILogger log)
+        {
+            try
+            {
+                await todoTable.DeleteEntityAsync(PartitionKey, id);
+                return new OkObjectResult(HttpStatusCode.NoContent);
+            }
+            catch (Exception ex)
+            {
+                return new UnprocessableEntityObjectResult(ex.Message);
+            }
 
             //var currentUser = GetCurrentUserName(log);
             //log.Info("Deleting document with ID " + id + " for user " + currentUser.UniqueName);
@@ -146,5 +146,5 @@ namespace api
 
             //return req.CreateResponse(HttpStatusCode.NoContent);
         }
-	}
+    }
 }
