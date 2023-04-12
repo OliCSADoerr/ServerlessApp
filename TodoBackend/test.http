@@ -1,0 +1,13 @@
+### Get all items
+GET {{apiurl}}/api/todoitem
+
+### Add new item
+POST {{apiurl}}/api/todoitem
+Media-Type: "application/json"
+
+{
+    "ItemName" : "This is a new item"
+}
+
+### Delete
+DELETE {{apiurl}}/api/todoitem/638168979010224668
