@@ -44,7 +44,7 @@ namespace api
 
         // Add new item
         [FunctionName("TodoItemAdd")]
-        [return: Table(TableName)] // This syntax comes from the docs, alternatively you can add a Table input binding and use todoTable.UpsertAsync
+        [return: Table(TableName, Connection = "AzureStorage")] // This syntax comes from the docs, alternatively you can add a Table input binding and use todoTable.UpsertAsync
         public static async Task<TodoItem> AddItem(
 			[HttpTrigger(
 				AuthorizationLevel.Anonymous, 
@@ -81,7 +81,7 @@ namespace api
 				"get", 
 				Route = "todoitem")]
 			HttpRequestMessage req,
-			[Table(TableName, PartitionKey)]
+			[Table(TableName, PartitionKey, Connection = "AzureStorage")]
 			TableClient todoTable, 
 			ILogger log)
 		{
@@ -105,7 +105,7 @@ namespace api
 			"delete",
 			Route = "todoitem/{id}")]
 		   HttpRequestMessage req,
-		   [Table(TableName)]
+		   [Table(TableName, Connection = "AzureStorage")]
 		   TableClient todoTable, 
 		   string id,
 		   ILogger log)
